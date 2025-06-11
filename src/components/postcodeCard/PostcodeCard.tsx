@@ -7,7 +7,7 @@ interface PostcodeCardProps {
 const PostcodeCard = ({ postcode }: PostcodeCardProps) => {
   return (
     <>
-      <div className="flex m-2 border border-orange-500 rounded">
+      <div className="flex m-2 border border-orange-500 rounded-lg w-full">
         <article className="flex gap-4 m-2 text-2xl">
           <p className="">{postcode.postcode}</p>
           <p>{postcode.suburb}</p>
