@@ -2,7 +2,6 @@ import { useNavigate } from "react-router";
 import { schema, type SearchFormData } from "./schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Button from "../button/Button";
 
 interface SearchFormProps {
   onSubmit: (data: SearchFormData) => unknown;
@@ -29,24 +28,19 @@ const SearchForm = ({ onSubmit }: SearchFormProps) => {
       <div className="flex flex-col flex-1">
         <input
           type="text"
-          placeholder="type here your query"
+          placeholder="type postcode or suburb"
           {...register("query")}
-          className="h-10 px-3 border border-orange-600 rounded-lg bg-white"
+          className="h-12 px-3 border border-orange-600 rounded-lg bg-white"
         />
         <small className="flex text-red-500 min-h-[1.25rem]">
           {errors?.query?.message}
         </small>
       </div>
       <div>
-        <button
-          type="submit"
-          className="flex align-top h-12 px-4 bg-blue-300 border border-blue-600 rounded-lg text-orange-600 "
-        >
+        <button type="submit" className="rounded-lg text-orange-600">
           Search
         </button>
-        <small className="flex text-red-500 min-h-[1.25rem]">
-          {/* {errors?.query?.message} */}
-        </small>
+        <small className="flex min-h-[1.25rem]"></small>
       </div>
     </form>
   );
