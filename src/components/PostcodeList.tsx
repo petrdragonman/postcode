@@ -6,7 +6,7 @@ interface PostcodeListProps {
 }
 
 const PostcodeList = ({ postcodes }: PostcodeListProps) => {
-  if (postcodes.length === 0) {
+  if (postcodes === null || postcodes.length === 0) {
     return null;
   }
 
