@@ -5,7 +5,15 @@ export interface Postcode {
   stateCode: StateCode;
 }
 
-type StateCode = "NSW" | "VIC" | "QLD" | "SA" | "WA" | "TAS" | "NT" | "ACT";
+export type StateCode =
+  | "NSW"
+  | "VIC"
+  | "QLD"
+  | "SA"
+  | "WA"
+  | "TAS"
+  | "NT"
+  | "ACT";
 
 export const getAllPostcodes = async () => {
   const response = await fetch("http://localhost:8080/postcodes");
@@ -24,7 +32,36 @@ export const getPostcodeByCode = async (code: string) => {
   return await response.json();
 };
 
-export const getPostcodeById = async (id: string) => {
+export const getPostcodeById = async (id: number) => {
   const response = await fetch("http://localhost:8080/postcodes/" + id);
   return await response.json();
+};
+
+export const createPostcode = async (data: Postcode) => {
+  const response = await fetch("http://localhost:8080/postcodes", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return await response.json();
+};
+
+export const deletePostcode = async (id: number) => {
+  const response = await fetch("http://localhost:8080/postcodes/" + id, {
+    method: "DELETE",
+  });
+  return await response.json();
+};
+
+export const updatePostcode = async (id: number, data: any) => {
+  const response = fetch("http://localhost:8080/postcodes/" + id, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return (await response).json();
 };

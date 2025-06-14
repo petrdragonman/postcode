@@ -22,7 +22,7 @@ const SearchForm = ({ onSubmit }: SearchFormProps) => {
 
   return (
     <form
-      className="flex items-center w-full gap-x-4 m-2 p-2"
+      className="flex items-center w-full gap-x-4"
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="flex flex-col flex-1">
@@ -37,7 +37,7 @@ const SearchForm = ({ onSubmit }: SearchFormProps) => {
         </small>
       </div>
       <div>
-        <button type="submit" className="rounded-lg text-orange-600">
+        <button type="submit" className="rounded-lg shadow-md text-orange-600 ">
           Search
         </button>
         <small className="flex min-h-[1.25rem]"></small>
