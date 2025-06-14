@@ -1,4 +1,4 @@
-const LoadingPlcedolder = () => {
+const LoadingPlacedolder = () => {
   return (
     <div className="space-y-2">
       {[...Array(4)].map((_, i) => (
@@ -8,4 +8,4 @@ const LoadingPlcedolder = () => {
   );
 };
 
-export default LoadingPlcedolder;
+export default LoadingPlacedolder;
