@@ -27,26 +27,38 @@ const LoginForm = ({ onSubmit }: LoginFormProps) => {
   return (
     <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
       <section>
-        <input type="text" placeholder="username" {...register("userName")} />
+        <input
+          type="text"
+          placeholder="username"
+          {...register("username")}
+          className="h-14 border border-orange-500 rounded-lg text-2xl p-2"
+        />
         <small className="flex text-red-500 min-h-[1.25rem]">
-          {errors.userName?.message}
+          {errors.username?.message}
         </small>
       </section>
       <section>
-        <input type="text" placeholder="password" {...register("password")} />
+        <input
+          type="text"
+          placeholder="password"
+          {...register("password")}
+          className="h-14 border border-orange-500 rounded-lg text-2xl p-2"
+        />
         <small className="flex text-red-500 min-h-[1.25rem]">
           {errors.password?.message}
         </small>
       </section>
-      <button className="rounded-lg shadow-md text-orange-600" type="submit">
-        Login
-      </button>
-      <button
-        className="rounded-lg shadow-md text-orange-600"
-        onClick={handleCancel}
-      >
-        Cancel
-      </button>
+      <section className="flex gap-6 justify-end mt-4">
+        <button
+          className="rounded-lg shadow-md text-orange-400"
+          onClick={handleCancel}
+        >
+          Cancel
+        </button>
+        <button className="rounded-lg shadow-md text-orange-600" type="submit">
+          Login
+        </button>
+      </section>
     </form>
   );
 };
