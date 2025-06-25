@@ -1,4 +1,6 @@
 import type { LoginFormData } from "../components/loginForm/schema";
+import type { RegisterFormData } from "../components/registerForm/schema";
+import type { UserProfile, UserProfileToken } from "../models/User";
 
 export interface AuthData {
   jwtToken: string;
@@ -13,6 +15,7 @@ export const signin = async (data: LoginFormData) => {
     body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json",
+      Authorization: "",
     },
   });
   //return await response.json();
@@ -21,6 +24,23 @@ export const signin = async (data: LoginFormData) => {
   }
   return (await response.json()) as AuthData;
 };
+
+export const register = async (data: RegisterFormData) => {
+  console.log(data);
+  const response = await fetch("http://localhost:8080/users", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "",
+    },
+  });
+  if (!response.ok) {
+    throw new Error("failed to register");
+  }
+  return (await response.json()) as UserProfileToken;
+};
+
 /**
  * // authService.ts
 export const storeToken = (token: string): void => {
