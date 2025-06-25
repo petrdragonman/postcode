@@ -114,7 +114,7 @@ const PostcodesPage = () => {
 
   const handleLogin = () => {
     navigate("/login");
-    //navigate("register");
+    //navigate("/register");
   };
 
   if (error) {
