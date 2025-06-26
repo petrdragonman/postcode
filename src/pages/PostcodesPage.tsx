@@ -15,6 +15,8 @@ import PostcodeList from "../components/PostcodeList";
 import SearchForm from "../components/searchForm/SearchForm";
 import LoadingPlacedolder from "../components/loading placeholder/LoadingPlacedolder";
 import { useNavigate } from "react-router";
+import { useAuth } from "../context/useAuth";
+import { getToken } from "../services/AuthService";
 
 const stateOptions: StateCode[] = [
   "NSW",
@@ -34,32 +36,48 @@ const PostcodesPage = () => {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { isAuthenticated, logout, login } = useAuth();
 
-  // Fetch postcodes data
   const { data, isPending, error } = useQuery({
     queryKey: ["postcodes", searchQuery],
     queryFn: () => {
-      if (searchQuery === null) return getAllPostcodes();
-      return /^\d+$/.test(searchQuery)
-        ? getPostcodeByCode(searchQuery)
-        : getPostcodeBySuburb(searchQuery);
+      if (!isAuthenticated) throw new Error("Unauthorized");
+      if (searchQuery === null) return getPostcodeByCode("2039");
+      if (searchQuery !== null) {
+        return /^\d+$/.test(searchQuery)
+          ? getPostcodeByCode(searchQuery)
+          : getPostcodeBySuburb(searchQuery);
+      }
     },
+    enabled: isAuthenticated,
     retry: false,
   });
 
-  // Unified create/update mutation
   const saveMutation = useMutation({
-    mutationFn: (postcode: Postcode) =>
-      postcode.id
+    mutationFn: (postcode: Postcode) => {
+      if (!isAuthenticated) throw new Error("Unauthorized - Please login");
+      const token = getToken();
+      if (!token) throw new Error("Missing authentication token");
+
+      return postcode.id
         ? updatePostcode(postcode.id, postcode)
-        : createPostcode(postcode),
+        : createPostcode(postcode);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postcodes"] });
       setIsModalOpen(false);
     },
+    onError: (error) => {
+      if (
+        error.message.includes("Unauthorized") ||
+        error.message.includes("Missing")
+      ) {
+        logout();
+        navigate("/login");
+      }
+    },
   });
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: deletePostcode,
     onSuccess: () => {
@@ -114,7 +132,6 @@ const PostcodesPage = () => {
 
   const handleLogin = () => {
     navigate("/login");
-    //navigate("/register");
   };
 
   if (error) {
@@ -126,33 +143,36 @@ const PostcodesPage = () => {
   }
 
   return (
-    // <div className="container mx-auto p-4 max-w-4xl"></div>
     <div className="flex flex-col">
-      <header className="text-orange-600 text-3xl mb-10 font-bold">
-        POSTCODES
+      <header className="flex justify-between items-center text-orange-500 mb-10">
+        <h1>POSTCODES</h1>
+        {isAuthenticated ? (
+          <button onClick={logout}>Logout</button>
+        ) : (
+          <button onClick={handleLogin}>Login</button>
+        )}
       </header>
 
-      <button onClick={handleLogin}>Login</button>
-
-      {/* <div className="flex flex-col md:flex-row gap-4 mb-6"></div> */}
+      <section className=" flex justify-start pl-1.5 italic text-xl">
+        Search by typing Postcode or Suburb.
+      </section>
       <div className="flex gap-4 pb-4 m-2">
         <SearchForm onSubmit={handleSearchSubmit} />
-        <section>
-          <button
-            className=" text-red-400 w-50 text-[16px] px-4 py-2 rounded shadow-md"
-            onClick={handleCreate}
-          >
-            Create postcode
-          </button>
-          <p></p>
-        </section>
-        {/* <section className="flex flex-col">
-          <button className="flex text-orange-600 shadow-md">Create</button>
-          <p></p>
-        </section> */}
+        {isAuthenticated ? (
+          <section>
+            <button
+              className=" text-red-400 w-50 text-[16px] px-4 py-2 rounded shadow-md"
+              onClick={handleCreate}
+            >
+              Create postcode
+            </button>
+            <p></p>
+          </section>
+        ) : (
+          <section className="w-50"></section>
+        )}
       </div>
 
-      {/* Data display area */}
       <div className="bg-white p-2 rounded-lg shadow-sm border border-orange-100">
         {isPending ? (
           <LoadingPlacedolder />
