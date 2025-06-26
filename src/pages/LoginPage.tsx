@@ -2,23 +2,25 @@ import { useNavigate } from "react-router";
 import LoginForm from "../components/loginForm/LoginForm";
 import type { LoginFormData } from "../components/loginForm/schema";
 import { useState } from "react";
-import { signin } from "../services/AuthService";
+import { signin, storeToken } from "../services/AuthService";
+import { useAuth } from "../context/useAuth";
 
 const LoginPage = () => {
+  const { isAuthenticated, logout, login } = useAuth();
   const [loginData, setLogindata] = useState<LoginFormData>();
   const navigate = useNavigate();
+
   const onSubmit = async (data: LoginFormData) => {
-    console.log(data);
     setLogindata(data);
     const result = await signin(data);
-    console.log(result);
-    alert("You are logged in! 🙂");
+    storeToken(result.jwtToken);
+    login(result.jwtToken);
     navigate("/");
   };
 
   return (
     <>
-      <header className="text-3xl text-orange-500 pb-10">Login</header>
+      <header className="text-3xl text-orange-500 pb-10">Log In</header>
       <LoginForm onSubmit={onSubmit} />
     </>
   );

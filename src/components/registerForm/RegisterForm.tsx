@@ -52,11 +52,11 @@ const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
         <input
           type="text"
           placeholder="username"
-          {...register("userName")}
+          {...register("username")}
           className="h-14 border border-orange-500 rounded-lg text-2xl p-2"
         />
         <small className="flex text-red-500 min-h-[1.25rem]">
-          {errors.userName?.message}
+          {errors.username?.message}
         </small>
       </section>
       <section>
@@ -93,7 +93,7 @@ const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
         </small>
       </section>
 
-      <section className="flex gap-6 justify-end mt-4">
+      <section className="flex gap-6 justify-center mt-4">
         <button
           className="rounded-lg shadow-md text-orange-400"
           onClick={handleCancel}
@@ -101,8 +101,17 @@ const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
           Cancel
         </button>
         <button className="rounded-lg shadow-md text-orange-600" type="submit">
-          Login
+          Sign Up
         </button>
+      </section>
+      <section>
+        <p className="mt-6">
+          Registered already{" "}
+          <a href="login" className="text-orange-800">
+            Sign In
+          </a>{" "}
+          instead.
+        </p>
       </section>
     </form>
   );
