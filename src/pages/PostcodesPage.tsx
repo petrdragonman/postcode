@@ -41,15 +41,14 @@ const PostcodesPage = () => {
   const { data, isPending, error } = useQuery({
     queryKey: ["postcodes", searchQuery],
     queryFn: () => {
-      if (!isAuthenticated) throw new Error("Unauthorized");
-      if (searchQuery === null) return getPostcodeByCode("2039");
+      if (searchQuery === null) return null;
       if (searchQuery !== null) {
         return /^\d+$/.test(searchQuery)
           ? getPostcodeByCode(searchQuery)
           : getPostcodeBySuburb(searchQuery);
       }
     },
-    enabled: isAuthenticated,
+    //enabled: isAuthenticated,
     retry: false,
   });
 
@@ -147,9 +146,19 @@ const PostcodesPage = () => {
       <header className="flex justify-between items-center text-orange-500 mb-10">
         <h1>POSTCODES</h1>
         {isAuthenticated ? (
-          <button onClick={logout}>Logout</button>
+          <button
+            onClick={logout}
+            className=" text-orange-500 w-20 text-[16px] px-4 py-2 rounded shadow-md"
+          >
+            Logout
+          </button>
         ) : (
-          <button onClick={handleLogin}>Login</button>
+          <button
+            onClick={handleLogin}
+            className="text-orange-500 w-20 text-[16px] px-4 py-2 rounded shadow-md"
+          >
+            Login
+          </button>
         )}
       </header>
 
@@ -178,7 +187,7 @@ const PostcodesPage = () => {
           <LoadingPlacedolder />
         ) : data?.data == null ? (
           <div className="text-center py-8 text-xl text-red-500">
-            {data?.message || "No postcodes found"}
+            {data?.message || ""}
           </div>
         ) : (
           <PostcodeList
@@ -194,7 +203,7 @@ const PostcodesPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">
+              <h2 className="text-xl font-bold mb-4 text-orange-500">
                 {currentPostcode.id !== 0
                   ? "Edit Postcode"
                   : "Create New Postcode"}
@@ -202,7 +211,7 @@ const PostcodesPage = () => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="flex text-sm font-medium mb-1">
                     Postcode
                   </label>
                   <input
@@ -216,7 +225,7 @@ const PostcodesPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="flex text-sm font-medium mb-1">
                     Suburb
                   </label>
                   <input
@@ -230,9 +239,7 @@ const PostcodesPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    State
-                  </label>
+                  <label className="flex text-sm font-medium mb-1">State</label>
                   <select
                     name="stateCode"
                     value={currentPostcode.stateCode}
@@ -283,10 +290,12 @@ const PostcodesPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="p-6">
-              <h2 className="text-xl font-bold mb-3">Confirm Deletion</h2>
+              <h2 className="text-xl font-bold mb-3 text-red-600">
+                Confirm Deletion
+              </h2>
               <p className="mb-6">
                 Are you sure you want to delete postcode {currentPostcode.id}?
-                This action cannot be undone.
+                This action cannot be undone!
               </p>
 
               <div className="flex justify-end gap-3 pt-4 border-t">
@@ -299,7 +308,7 @@ const PostcodesPage = () => {
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={deleteMutation.isPending}
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-red-300"
+                  className="px-4 py-2 text-red-600 rounded hover:bg-red-700 disabled:bg-red-300"
                 >
                   {deleteMutation.isPending
                     ? "Deleting..."
