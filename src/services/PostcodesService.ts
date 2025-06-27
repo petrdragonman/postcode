@@ -23,7 +23,6 @@ export const getAllPostcodes = async () => {
       "Content-Type": "application/json",
     },
   });
-  console.log(response);
   if (response.status === 401) throw new Error("Unauthorized...");
   return await response.json();
 };
@@ -60,6 +59,10 @@ export const createPostcode = async (data: Postcode) => {
 export const deletePostcode = async (id: number) => {
   const response = await fetch("http://localhost:8080/postcodes/" + id, {
     method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeader(),
+    },
   });
   return await response.json();
 };

@@ -8,10 +8,8 @@ const RegisterPage = () => {
   const [registerData, setRegisterData] = useState<RegisterFormData>();
   const navigate = useNavigate();
   const onSubmit = async (data: RegisterFormData) => {
-    console.log(data);
     setRegisterData(data);
     const result = await register(data);
-    console.log(result);
     navigate("/");
   };
 

@@ -25,7 +25,6 @@ export const getAuthHeader = (): { Authorization: string } | {} => {
 };
 
 export const signin = async (data: LoginFormData) => {
-  console.log(data);
   const response = await fetch("http://localhost:8080/signin", {
     method: "POST",
     body: JSON.stringify(data),
@@ -61,7 +60,6 @@ export const register = async (data: RegisterFormData) => {
      }
    */
 
-  console.log(response);
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.message || "failed to register");

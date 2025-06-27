@@ -28,7 +28,7 @@ const SearchForm = ({ onSubmit }: SearchFormProps) => {
       <div className="flex flex-col flex-1">
         <input
           type="text"
-          placeholder="type postcode or suburb"
+          placeholder="postcode or suburb"
           {...register("query")}
           className="h-12 px-3 border border-orange-600 rounded-lg bg-white"
         />
