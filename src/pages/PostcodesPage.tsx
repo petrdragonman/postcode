@@ -15,6 +15,8 @@ import PostcodeList from "../components/PostcodeList";
 import SearchForm from "../components/searchForm/SearchForm";
 import LoadingPlacedolder from "../components/loading placeholder/LoadingPlacedolder";
 import { useNavigate } from "react-router";
+import { useAuth } from "../context/useAuth";
+import { getToken } from "../services/AuthService";
 
 const stateOptions: StateCode[] = [
   "NSW",
@@ -34,32 +36,47 @@ const PostcodesPage = () => {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { isAuthenticated, logout, login } = useAuth();
 
-  // Fetch postcodes data
   const { data, isPending, error } = useQuery({
     queryKey: ["postcodes", searchQuery],
     queryFn: () => {
-      if (searchQuery === null) return getAllPostcodes();
-      return /^\d+$/.test(searchQuery)
-        ? getPostcodeByCode(searchQuery)
-        : getPostcodeBySuburb(searchQuery);
+      if (searchQuery === null) return null;
+      if (searchQuery !== null) {
+        return /^\d+$/.test(searchQuery)
+          ? getPostcodeByCode(searchQuery)
+          : getPostcodeBySuburb(searchQuery);
+      }
     },
+    //enabled: isAuthenticated,
     retry: false,
   });
 
-  // Unified create/update mutation
   const saveMutation = useMutation({
-    mutationFn: (postcode: Postcode) =>
-      postcode.id
+    mutationFn: (postcode: Postcode) => {
+      if (!isAuthenticated) throw new Error("Unauthorized - Please login");
+      const token = getToken();
+      if (!token) throw new Error("Missing authentication token");
+
+      return postcode.id
         ? updatePostcode(postcode.id, postcode)
-        : createPostcode(postcode),
+        : createPostcode(postcode);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postcodes"] });
       setIsModalOpen(false);
     },
+    onError: (error) => {
+      if (
+        error.message.includes("Unauthorized") ||
+        error.message.includes("Missing")
+      ) {
+        logout();
+        navigate("/login");
+      }
+    },
   });
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: deletePostcode,
     onSuccess: () => {
@@ -125,39 +142,52 @@ const PostcodesPage = () => {
   }
 
   return (
-    // <div className="container mx-auto p-4 max-w-4xl"></div>
     <div className="flex flex-col">
-      <header className="text-orange-600 text-3xl mb-10 font-bold">
-        POSTCODES
+      <header className="flex justify-between items-center text-orange-500 mb-10">
+        <h1>POSTCODES</h1>
+        {isAuthenticated ? (
+          <button
+            onClick={logout}
+            className=" text-orange-500 w-20 text-[16px] px-4 py-2 rounded shadow-md"
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            onClick={handleLogin}
+            className="text-orange-500 w-20 text-[16px] px-4 py-2 rounded shadow-md"
+          >
+            Login
+          </button>
+        )}
       </header>
 
-      <button onClick={handleLogin}>Login</button>
-
-      {/* <div className="flex flex-col md:flex-row gap-4 mb-6"></div> */}
+      <section className=" flex justify-start pl-1.5 italic text-xl">
+        Search by typing Postcode or Suburb.
+      </section>
       <div className="flex gap-4 pb-4 m-2">
         <SearchForm onSubmit={handleSearchSubmit} />
-        <section>
-          <button
-            className=" text-red-400 w-50 text-[16px] px-4 py-2 rounded shadow-md"
-            onClick={handleCreate}
-          >
-            Create postcode
-          </button>
-          <p></p>
-        </section>
-        {/* <section className="flex flex-col">
-          <button className="flex text-orange-600 shadow-md">Create</button>
-          <p></p>
-        </section> */}
+        {isAuthenticated ? (
+          <section>
+            <button
+              className=" text-red-400 w-50 text-[16px] px-4 py-2 rounded shadow-md"
+              onClick={handleCreate}
+            >
+              Create postcode
+            </button>
+            <p></p>
+          </section>
+        ) : (
+          <section className="w-50"></section>
+        )}
       </div>
 
-      {/* Data display area */}
       <div className="bg-white p-2 rounded-lg shadow-sm border border-orange-100">
         {isPending ? (
           <LoadingPlacedolder />
         ) : data?.data == null ? (
           <div className="text-center py-8 text-xl text-red-500">
-            {data?.message || "No postcodes found"}
+            {data?.message || ""}
           </div>
         ) : (
           <PostcodeList
@@ -173,7 +203,7 @@ const PostcodesPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">
+              <h2 className="text-xl font-bold mb-4 text-orange-500">
                 {currentPostcode.id !== 0
                   ? "Edit Postcode"
                   : "Create New Postcode"}
@@ -181,7 +211,7 @@ const PostcodesPage = () => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="flex text-sm font-medium mb-1">
                     Postcode
                   </label>
                   <input
@@ -195,7 +225,7 @@ const PostcodesPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="flex text-sm font-medium mb-1">
                     Suburb
                   </label>
                   <input
@@ -209,9 +239,7 @@ const PostcodesPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    State
-                  </label>
+                  <label className="flex text-sm font-medium mb-1">State</label>
                   <select
                     name="stateCode"
                     value={currentPostcode.stateCode}
@@ -262,10 +290,12 @@ const PostcodesPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="p-6">
-              <h2 className="text-xl font-bold mb-3">Confirm Deletion</h2>
+              <h2 className="text-xl font-bold mb-3 text-red-600">
+                Confirm Deletion
+              </h2>
               <p className="mb-6">
                 Are you sure you want to delete postcode {currentPostcode.id}?
-                This action cannot be undone.
+                This action cannot be undone!
               </p>
 
               <div className="flex justify-end gap-3 pt-4 border-t">
@@ -278,7 +308,7 @@ const PostcodesPage = () => {
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={deleteMutation.isPending}
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-red-300"
+                  className="px-4 py-2 text-red-600 rounded hover:bg-red-700 disabled:bg-red-300"
                 >
                   {deleteMutation.isPending
                     ? "Deleting..."

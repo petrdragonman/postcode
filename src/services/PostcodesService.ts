@@ -1,3 +1,5 @@
+import { getAuthHeader } from "./AuthService";
+
 export interface Postcode {
   id: number;
   postcode: string;
@@ -16,7 +18,12 @@ export type StateCode =
   | "ACT";
 
 export const getAllPostcodes = async () => {
-  const response = await fetch("http://localhost:8080/postcodes");
+  const response = await fetch("http://localhost:8080/postcodes", {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.status === 401) throw new Error("Unauthorized...");
   return await response.json();
 };
 
@@ -43,6 +50,7 @@ export const createPostcode = async (data: Postcode) => {
     body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeader(),
     },
   });
   return await response.json();
@@ -51,6 +59,10 @@ export const createPostcode = async (data: Postcode) => {
 export const deletePostcode = async (id: number) => {
   const response = await fetch("http://localhost:8080/postcodes/" + id, {
     method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeader(),
+    },
   });
   return await response.json();
 };
@@ -61,6 +73,7 @@ export const updatePostcode = async (id: number, data: any) => {
     body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeader(),
     },
   });
   return (await response).json();
